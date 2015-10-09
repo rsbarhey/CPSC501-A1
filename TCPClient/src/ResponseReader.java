@@ -27,10 +27,10 @@ public class ResponseReader
 				byteList.add(byteInt);
 			}
 			Integer[] responseBody = byteList.toArray(new Integer[0]);
-			dataIndex = setDataIndex(responseBody);
-			contentLength = setContentLength(responseBody);
-			statusCode = setStatusCode(responseBody);
-			lastModified = setLastModified(responseBody);
+			setDataIndex(responseBody);
+			setContentLength(responseBody);
+			setStatusCode(responseBody);
+			setLastModified(responseBody);
 			
 			bytesToWrite = new byte[contentLength];
 			setBytesToWrite(responseBody);
@@ -81,7 +81,7 @@ public class ResponseReader
 		return bytesToWrite;
 	}
 	
-	private int setDataIndex(Integer[] bytes)
+	private void setDataIndex(Integer[] bytes)
 	{
 		int i = 0;
 		while(i<bytes.length && i+1 < bytes.length &&
@@ -96,12 +96,11 @@ public class ResponseReader
 			}
 			i++;
 		}
-		return i + 4;
+		dataIndex = i + 4;
 	}
 	
-	private int setContentLength(Integer[] bytes)
+	private void setContentLength(Integer[] bytes)
 	{
-		int contentLength = 0;
 		String tmpHeader = "";
 		for(int i = 0; i < bytes.length; i++)
 		{
@@ -127,12 +126,10 @@ public class ResponseReader
 				}
 			}
 		}
-		return contentLength;
 	}
 	
-	private int setStatusCode(Integer[] bytes)
+	private void setStatusCode(Integer[] bytes)
 	{
-		int statusCode = 0;
 		String tmpHeader = "";
 		for(int i = 0; i < bytes.length; i++)
 		{
@@ -158,7 +155,6 @@ public class ResponseReader
 				}
 			}
 		}
-		return statusCode;
 	}
 	
 	private void setBytesToWrite(Integer[]bytes)
@@ -170,9 +166,8 @@ public class ResponseReader
 		}
 	}
 	
-	private String setLastModified(Integer[] bytes)
+	private void setLastModified(Integer[] bytes)
 	{
-		String lastModified = "";
 		String tmpHeader = "";
 		for(int i = 0; i < bytes.length; i++)
 		{
@@ -197,6 +192,5 @@ public class ResponseReader
 				}
 			}
 		}
-		return lastModified;
 	}
 }
