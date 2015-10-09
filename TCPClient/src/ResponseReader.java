@@ -40,29 +40,11 @@ public class ResponseReader
 	
 	/**
 	 * 
-	 * @return the data index in which the bytes of the file starts
-	 */
-	public int GetDataIndex()
-	{
-		return dataIndex;
-	}
-	
-	/**
-	 * 
 	 * @return the status code of the http request
 	 */
 	public int GetStatusCode()
 	{
 		return statusCode;
-	}
-	
-	/**
-	 * 
-	 * @return the content length of the file in the body of the http reponse
-	 */
-	public int GetContentLength()
-	{
-		return contentLength;
 	}
 	
 	/**
