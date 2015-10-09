@@ -6,8 +6,12 @@ public class UrlParser
 	private String path = "";
 	private int port = 80;
 	
-	public UrlParser(String url)
+	public UrlParser(String url) throws InvalidUrlException
 	{
+		if(url.isEmpty())
+		{
+			throw new InvalidUrlException();
+		}
 		String [] parsedList = url.split("/", 2);
 		hostName = parsedList[0];
 		if(parsedList.length > 1)
@@ -24,7 +28,7 @@ public class UrlParser
 			
 			catch (NumberFormatException e)
 			{
-				e.printStackTrace();
+				throw new InvalidUrlException();
 			}
 		}
 	}

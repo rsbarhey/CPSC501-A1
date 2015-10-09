@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 public class TestUrlParser {
 
 	@Test
-	public void testValidUrl() 
+	public void testValidUrl() throws InvalidUrlException 
 	{
 		//Testing with an empty path
 		UrlParser urlParser = new UrlParser("people.ucalgary.ca:888");
@@ -19,9 +19,15 @@ public class TestUrlParser {
 		assertTrue("rsbarhey/".equals(urlParser.GetPath()));
 	}
 	
-	@Test (expected = Exception.class)
-	public void testInvalidUrl()
+	@Test (expected = InvalidUrlException.class)
+	public void testEmptyUrl() throws InvalidUrlException
 	{
 		UrlParser urlParser = new UrlParser("");
+	}
+	
+	@Test (expected = InvalidUrlException.class)
+	public void testInvalidPortNumber() throws InvalidUrlException
+	{
+		UrlParser urlParser = new UrlParser("github.com:tmoe/rsbarhey/");
 	}
 }

@@ -63,9 +63,9 @@ public class UrlCache {
      */
 	public void getObject(String url) throws UrlCacheException
 	{
-		UrlParser urlParser = new UrlParser(url);
 		try
 		{
+			UrlParser urlParser = new UrlParser(url);
 			Socket socket = new Socket(urlParser.GetHostName(), urlParser.GetPort());
 			PrintWriter out = new PrintWriter(new DataOutputStream(socket.getOutputStream()));
 			String httpReq = "GET /" + urlParser.GetPath() + " HTTP/1.1\r\n" +
@@ -135,6 +135,10 @@ public class UrlCache {
 		{
 			System.out.println("IOException: " + e.getMessage());
 		}
+		catch(InvalidUrlException e)
+		{
+			System.out.println("InvalidUrlException: " + e.getMessage());
+		}
 	}
 	
     /**
@@ -146,16 +150,21 @@ public class UrlCache {
      */
 	public long getLastModified(String url) throws UrlCacheException
 	{
-		UrlParser urlParser = new UrlParser(url);
-		if(cacheHashMap.containsKey(urlParser.GetPath()))
-		{
-			return cacheHashMap.get(urlParser.GetPath()).getTime();
+		UrlParser urlParser;
+		try {
+			urlParser = new UrlParser(url);
+			if(cacheHashMap.containsKey(urlParser.GetPath()))
+			{
+				return cacheHashMap.get(urlParser.GetPath()).getTime();
+			}
+			else
+			{
+				throw new UrlCacheException();
+			}
+		} catch (InvalidUrlException e) {
+			e.printStackTrace();
 		}
-		else
-		{
-			throw new UrlCacheException();
-		}
-		
+		return -1;	
 	}
 	
 	private int getContentLength(Integer[] bytes)
