@@ -80,17 +80,10 @@ public class UrlCache {
 			out.println(httpReq);
 			out.flush();
 			
-			InputStream in = socket.getInputStream();
-			List<Integer> byteList = new ArrayList<>();
-			int byteInt = 0;
-			while((byteInt = in.read()) != -1)
-			{
-				byteList.add(byteInt);
-			}
-			Integer[] readBytes = byteList.toArray(new Integer[0]);
-			int dataIndex = getDataIndex(readBytes);
-			int contentLength = getContentLength(readBytes);
-			int statusCode = getStatusCode(readBytes);
+			ResponseReader responseReader = new ResponseReader(socket.getInputStream());
+			int dataIndex = responseReader.GetDataIndex();
+			int contentLength = responseReader.GetContentLength();
+			int statusCode = responseReader.GetStatusCode();
 			
 			if(statusCode == 200)
 			{
@@ -99,15 +92,10 @@ public class UrlCache {
 				file.createNewFile();
 			
 				FileOutputStream write = new FileOutputStream(file);
-				byte[] bytesToWrite = new byte[contentLength];
-				for(int i = 0; i < contentLength; i++)
-				{
-					int byteInt1 = readBytes[i+dataIndex];
-					bytesToWrite[i] = (byte) byteInt1;
-				}
+				byte[] bytesToWrite = responseReader.GetBytesToWrite();
 				write.write(bytesToWrite);
 				
-				String lastModified = getLastModified(readBytes);
+				String lastModified = responseReader.GetLastModified();
 				try
 				{
 					Date date = dateFormatter.parse(lastModified);

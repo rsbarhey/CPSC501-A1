@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -13,21 +15,25 @@ public class ResponseReader
 	private int statusCode;
 	private int contentLength;
 	private String lastModified;
-	byte[] responseBody;
 	byte[] bytesToWrite;
+	List<Integer> byteList = new ArrayList<>();
 	
 	public ResponseReader(InputStream in)
 	{
-		responseBody = new byte[10 * 2048];
 		try {
-			in.read(responseBody);
+			int byteInt = 0;
+			while((byteInt = in.read()) != -1)
+			{
+				byteList.add(byteInt);
+			}
+			Integer[] responseBody = byteList.toArray(new Integer[0]);
 			dataIndex = setDataIndex(responseBody);
 			contentLength = setContentLength(responseBody);
 			statusCode = setStatusCode(responseBody);
 			lastModified = setLastModified(responseBody);
 			
 			bytesToWrite = new byte[contentLength];
-			setBytesToWrite();
+			setBytesToWrite(responseBody);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -75,7 +81,7 @@ public class ResponseReader
 		return bytesToWrite;
 	}
 	
-	private int setDataIndex(byte[] bytes)
+	private int setDataIndex(Integer[] bytes)
 	{
 		int i = 0;
 		while(i<bytes.length && i+1 < bytes.length &&
@@ -93,7 +99,7 @@ public class ResponseReader
 		return i + 4;
 	}
 	
-	private int setContentLength(byte[] bytes)
+	private int setContentLength(Integer[] bytes)
 	{
 		int contentLength = 0;
 		String tmpHeader = "";
@@ -124,7 +130,7 @@ public class ResponseReader
 		return contentLength;
 	}
 	
-	private int setStatusCode(byte[] bytes)
+	private int setStatusCode(Integer[] bytes)
 	{
 		int statusCode = 0;
 		String tmpHeader = "";
@@ -155,15 +161,16 @@ public class ResponseReader
 		return statusCode;
 	}
 	
-	private void setBytesToWrite()
+	private void setBytesToWrite(Integer[]bytes)
 	{
 		for(int i = 0; i < contentLength; i++)
 		{
-			bytesToWrite[i] = responseBody[i+dataIndex];
+			int byteInt1 = bytes[i+dataIndex];
+			bytesToWrite[i] = (byte) byteInt1;
 		}
 	}
 	
-	private String setLastModified(byte[] bytes)
+	private String setLastModified(Integer[] bytes)
 	{
 		String lastModified = "";
 		String tmpHeader = "";
