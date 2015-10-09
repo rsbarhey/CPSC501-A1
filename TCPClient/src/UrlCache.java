@@ -80,9 +80,13 @@ public class UrlCache {
 	{
 		try
 		{
+			//Parse the url
 			UrlParser urlParser = new UrlParser(url);
+			//connect the socket with hostName and port from urlParser 
 			Socket socket = new Socket(urlParser.GetHostName(), urlParser.GetPort());
+			//prepare to write into the socket
 			PrintWriter out = new PrintWriter(new DataOutputStream(socket.getOutputStream()));
+			//build the http request
 			String httpReq = "GET /" + urlParser.GetPath() + " HTTP/1.1\r\n" +
 					 "Host: " + urlParser.GetHostName() +":"+ Integer.toString(urlParser.GetPort()) +"\r\n";
 			if(cacheHashMap.containsKey(urlParser.GetPath()))

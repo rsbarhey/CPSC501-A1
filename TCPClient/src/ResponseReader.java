@@ -18,19 +18,28 @@ public class ResponseReader
 	byte[] bytesToWrite;
 	List<Integer> byteList = new ArrayList<>();
 	
+	/**
+	 * Takes an InputStream and parse the bytes provided that it's HTTP response
+	 * @param in The socket input stream
+	 */
 	public ResponseReader(InputStream in)
 	{
 		try {
 			int byteInt = 0;
+			//read until no bytes left
 			while((byteInt = in.read()) != -1)
 			{
 				byteList.add(byteInt);
 			}
+			//responseBody is an arry of byteList
 			Integer[] responseBody = byteList.toArray(new Integer[0]);
-			setDataIndex(responseBody);
+			//Gets the index where the file data starts
+			parseDataIndex(responseBody);
+			//Gets status code content length and last modified
 			parseHeaders(responseBody);
 			
 			bytesToWrite = new byte[contentLength];
+			//Copy Integer array into byte array
 			setBytesToWrite(responseBody);
 			
 		} catch (IOException e) {
@@ -61,12 +70,17 @@ public class ResponseReader
 		return bytesToWrite;
 	}
 	
-	private void setDataIndex(Integer[] bytes)
+	/**
+	 * take an Array of Integer and and gets where the file data starts in the body
+	 * @param bytes The array to parse
+	 */
+	private void parseDataIndex(Integer[] bytes)
 	{
 		int i = 0;
 		while(i<bytes.length && i+1 < bytes.length &&
 				i+2 <bytes.length && i + 3 <bytes.length)
 		{
+			//if a sequence of "\r\n\r\n" then what's after is the file data index
 			if(Character.toChars(bytes[i])[0]== '\r' && 
 					Character.toChars(bytes[i+1])[0] == '\n' &&
 						Character.toChars(bytes[i+2])[0]== '\r' && 
@@ -79,17 +93,23 @@ public class ResponseReader
 		dataIndex = i + 4;
 	}
 	
+	/**
+	 * Take an array of Integer and gets Status code, content length, and last modified
+	 * @param bytes The array to parse
+	 */
 	private void parseHeaders(Integer[] bytes)
 	{
 		String tmpHeader = "";
 		for(int i = 0; i < bytes.length; i++)
 		{
+			//read line
 			if(Character.toChars(bytes[i])[0] != '\n')
 			{
 				tmpHeader += Character.toChars(bytes[i])[0];
 			}
 			if(Character.toChars(bytes[i])[0] == '\r')
 			{
+				//check what the header is
 				if(tmpHeader.startsWith("HTTP"))
 				{
 					String[] parsedHeader = tmpHeader.split(" ");
@@ -127,6 +147,10 @@ public class ResponseReader
 		}
 	}
 	
+	/**
+	 * Copies an Integer array into byte array
+	 * @param bytes The Integer array to copy from
+	 */
 	private void setBytesToWrite(Integer[]bytes)
 	{
 		for(int i = 0; i < contentLength; i++)
