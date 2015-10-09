@@ -63,37 +63,16 @@ public class UrlCache {
      */
 	public void getObject(String url) throws UrlCacheException
 	{
-		String hostName = "";
-		String path = "";
-		int port = 80;
-		String [] parsedList = url.split("/", 2);
-		hostName = parsedList[0];
-		if(parsedList.length > 1)
-		{
-			path = parsedList[1];
-		}
-		if(hostName.contains(":"))
-		{	
-			try
-			{
-				port = Integer.parseInt(hostName.substring(hostName.indexOf(':')+ 1));
-				hostName = hostName.substring(0, hostName.indexOf(':'));
-			}
-			
-			catch (NumberFormatException e)
-			{
-				throw new UrlCacheException();
-			}
-		}
+		UrlParser urlParser = new UrlParser(url);
 		try
 		{
-			Socket socket = new Socket(hostName, port);
+			Socket socket = new Socket(urlParser.GetHostName(), urlParser.GetPort());
 			PrintWriter out = new PrintWriter(new DataOutputStream(socket.getOutputStream()));
-			String httpReq = "GET /" + path + " HTTP/1.1\r\n" +
-					 "Host: " + hostName +":"+ Integer.toString(port) +"\r\n";
-			if(cacheHashMap.containsKey(path))
+			String httpReq = "GET /" + urlParser.GetPath() + " HTTP/1.1\r\n" +
+					 "Host: " + urlParser.GetHostName() +":"+ Integer.toString(urlParser.GetPort()) +"\r\n";
+			if(cacheHashMap.containsKey(urlParser.GetPath()))
 			{
-				Date lastModified = cacheHashMap.get(path);
+				Date lastModified = cacheHashMap.get(urlParser.GetPath());
 				lastModified.setTime(lastModified.getTime());
 				httpReq += "If-Modified-Since: " + dateFormatter.format(lastModified) + "\r\n";
 			}
@@ -115,7 +94,7 @@ public class UrlCache {
 			
 			if(statusCode == 200)
 			{
-				File file = new File(System.getProperty("user.dir") + "/cache/" + path);
+				File file = new File(System.getProperty("user.dir") + "/cache/" + urlParser.GetPath());
 				file.getParentFile().mkdirs();
 				file.createNewFile();
 			
@@ -134,10 +113,10 @@ public class UrlCache {
 					Date date = dateFormatter.parse(lastModified);
 					file.setLastModified(date.getTime());
 					PrintWriter writer = new PrintWriter(new FileWriter("catalog.txt", true));
-					if(!cacheHashMap.containsKey(path))
+					if(!cacheHashMap.containsKey(urlParser.GetPath()))
 					{
-						cacheHashMap.put(path, date);
-						writer.println(path + "\t" + dateFormatter.format(date));
+						cacheHashMap.put(urlParser.GetPath(), date);
+						writer.println(urlParser.GetPath() + "\t" + dateFormatter.format(date));
 					}
 					writer.close();
 				} 
@@ -167,31 +146,10 @@ public class UrlCache {
      */
 	public long getLastModified(String url) throws UrlCacheException
 	{
-		String hostName = "";
-		String path = "";
-		int port = 80;
-		String [] parsedList = url.split("/", 2);
-		hostName = parsedList[0];
-		if(parsedList.length > 1)
+		UrlParser urlParser = new UrlParser(url);
+		if(cacheHashMap.containsKey(urlParser.GetPath()))
 		{
-			path = parsedList[1];
-		}
-		if(hostName.contains(":"))
-		{	
-			try
-			{
-				port = Integer.parseInt(hostName.substring(hostName.indexOf(':')+ 1));
-				hostName = hostName.substring(0, hostName.indexOf(':'));
-			}
-			
-			catch (NumberFormatException e)
-			{
-				throw new UrlCacheException();
-			}
-		}
-		if(cacheHashMap.containsKey(path))
-		{
-			return cacheHashMap.get(path).getTime();
+			return cacheHashMap.get(urlParser.GetPath()).getTime();
 		}
 		else
 		{
