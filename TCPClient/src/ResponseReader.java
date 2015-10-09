@@ -28,9 +28,7 @@ public class ResponseReader
 			}
 			Integer[] responseBody = byteList.toArray(new Integer[0]);
 			setDataIndex(responseBody);
-			setContentLength(responseBody);
-			setStatusCode(responseBody);
-			setLastModified(responseBody);
+			parseHeaders(responseBody);
 			
 			bytesToWrite = new byte[contentLength];
 			setBytesToWrite(responseBody);
@@ -99,36 +97,7 @@ public class ResponseReader
 		dataIndex = i + 4;
 	}
 	
-	private void setContentLength(Integer[] bytes)
-	{
-		String tmpHeader = "";
-		for(int i = 0; i < bytes.length; i++)
-		{
-			if(Character.toChars(bytes[i])[0] != '\n')
-			{
-				tmpHeader += Character.toChars(bytes[i])[0];
-			}
-			if(Character.toChars(bytes[i])[0] == '\r')
-			{
-				if(tmpHeader.startsWith("Content-Length"))
-				{
-					String[] parsedHeader = tmpHeader.split(" ");
-					if(parsedHeader.length > 1)
-					{
-						String number = parsedHeader[1].replace("\r", "");	// remove the \r from parsed header
-						contentLength = Integer.parseInt(number);
-						break;
-					}
-				}
-				else
-				{
-					tmpHeader = "";
-				}
-			}
-		}
-	}
-	
-	private void setStatusCode(Integer[] bytes)
+	private void parseHeaders(Integer[] bytes)
 	{
 		String tmpHeader = "";
 		for(int i = 0; i < bytes.length; i++)
@@ -146,7 +115,26 @@ public class ResponseReader
 					{
 						String number = parsedHeader[1].replace("\r", "");	// remove the \r from parsed header
 						statusCode = Integer.parseInt(number);
-						break;
+						tmpHeader = "";
+					}
+				}
+				else if(tmpHeader.startsWith("Last-Modified"))
+				{
+					String[] parsedHeader = tmpHeader.split(" ", 2);
+					if(parsedHeader.length > 1)
+					{
+						lastModified = parsedHeader[1].replace("\r", "");	// remove the \r\n from parsed header
+						tmpHeader = "";
+					}
+				}
+				else if(tmpHeader.startsWith("Content-Length"))
+				{
+					String[] parsedHeader = tmpHeader.split(" ");
+					if(parsedHeader.length > 1)
+					{
+						String number = parsedHeader[1].replace("\r", "");	// remove the \r from parsed header
+						contentLength = Integer.parseInt(number);
+						tmpHeader = "";
 					}
 				}
 				else
@@ -163,34 +151,6 @@ public class ResponseReader
 		{
 			int byteInt1 = bytes[i+dataIndex];
 			bytesToWrite[i] = (byte) byteInt1;
-		}
-	}
-	
-	private void setLastModified(Integer[] bytes)
-	{
-		String tmpHeader = "";
-		for(int i = 0; i < bytes.length; i++)
-		{
-			if(Character.toChars(bytes[i])[0] != '\n')
-			{
-				tmpHeader += Character.toChars(bytes[i])[0];
-			}
-			if(Character.toChars(bytes[i])[0] == '\r')
-			{
-				if(tmpHeader.startsWith("Last-Modified"))
-				{
-					String[] parsedHeader = tmpHeader.split(" ", 2);
-					if(parsedHeader.length > 1)
-					{
-						lastModified = parsedHeader[1].replace("\r", "");	// remove the \r\n from parsed header
-						break;
-					}
-				}
-				else
-				{
-					tmpHeader = "";
-				}
-			}
 		}
 	}
 }
