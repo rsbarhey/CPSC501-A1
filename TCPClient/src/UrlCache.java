@@ -41,7 +41,19 @@ public class UrlCache {
 					{
 						try {
 							Date lastModified = dateFormatter.parse(parsedLine[1]);
-							cacheHashMap.put(parsedLine[0], lastModified);
+							if(cacheHashMap.containsKey(parsedLine[0]))
+							{
+								Date savedModified = cacheHashMap.get(parsedLine[0]);
+								if(lastModified.getTime()>savedModified.getTime())
+								{
+									cacheHashMap.remove(parsedLine[0]);
+									cacheHashMap.put(parsedLine[0], lastModified);
+								}
+							}
+							else
+							{
+								cacheHashMap.put(parsedLine[0], lastModified);
+							}
 						} catch (ParseException e) {
 							e.printStackTrace();
 						}
@@ -101,8 +113,8 @@ public class UrlCache {
 					if(!cacheHashMap.containsKey(urlParser.GetPath()))
 					{
 						cacheHashMap.put(urlParser.GetPath(), date);
-						writer.println(urlParser.GetPath() + "\t" + dateFormatter.format(date));
 					}
+					writer.println(urlParser.GetPath() + "\t" + dateFormatter.format(date));
 					writer.close();
 				} 
 				catch (ParseException e)
