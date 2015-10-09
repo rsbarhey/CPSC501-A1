@@ -1,7 +1,5 @@
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -24,6 +22,7 @@ public class TestResponseReader {
 			assertEquals(200, responseReader.GetStatusCode());
 			socket.shutdownOutput();
 			socket.shutdownInput();
+			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -44,6 +43,7 @@ public class TestResponseReader {
 			assertEquals(304, responseReader.GetStatusCode());
 			socket.shutdownOutput();
 			socket.shutdownInput();
+			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -64,6 +64,7 @@ public class TestResponseReader {
 			assertEquals(400, responseReader.GetStatusCode());
 			socket.shutdownOutput();
 			socket.shutdownInput();
+			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -83,6 +84,7 @@ public class TestResponseReader {
 			assertEquals("Fri, 30 Aug 2013 18:43:48 GMT", responseReader.GetLastModified());
 			socket.shutdownOutput();
 			socket.shutdownInput();
+			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

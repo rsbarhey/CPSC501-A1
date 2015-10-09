@@ -1,11 +1,9 @@
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.net.*;
 import java.io.*;
@@ -49,6 +47,7 @@ public class UrlCache {
 						}
 					}
 				}
+				reader.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -81,8 +80,6 @@ public class UrlCache {
 			out.flush();
 			
 			ResponseReader responseReader = new ResponseReader(socket.getInputStream());
-			int dataIndex = responseReader.GetDataIndex();
-			int contentLength = responseReader.GetContentLength();
 			int statusCode = responseReader.GetStatusCode();
 			
 			if(statusCode == 200)
@@ -94,7 +91,7 @@ public class UrlCache {
 				FileOutputStream write = new FileOutputStream(file);
 				byte[] bytesToWrite = responseReader.GetBytesToWrite();
 				write.write(bytesToWrite);
-				
+				write.close();
 				String lastModified = responseReader.GetLastModified();
 				try
 				{
@@ -114,6 +111,9 @@ public class UrlCache {
 				}
 				
 			}
+			socket.shutdownInput();
+			socket.shutdownOutput();
+			socket.close();
 		}
 		catch(UnknownHostException e)
 		{
