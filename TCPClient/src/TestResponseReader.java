@@ -50,6 +50,26 @@ public class TestResponseReader {
 	}
 	
 	@Test
+	public void testHttp400()
+	{
+		try {
+			Socket socket = new Socket("static.ucalgary.ca", 80);
+			PrintWriter out = new PrintWriter(new DataOutputStream(socket.getOutputStream()));
+			out.println("GET + /2013-001/980/global/images/identity/vertical-crest.png HTTP/1.1\r\n"
+					+ "host: static.ucalgary.ca\r\n"
+					+ "If-Modified-Since: Fri, 02 Oct 2015 20:00:00 GMT\r\n\r\n");
+			out.flush();
+			ResponseReader responseReader = new ResponseReader(socket.getInputStream());
+			
+			assertEquals(400, responseReader.GetStatusCode());
+			socket.shutdownOutput();
+			socket.shutdownInput();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
 	public void testLastModified()
 	{
 		try {
