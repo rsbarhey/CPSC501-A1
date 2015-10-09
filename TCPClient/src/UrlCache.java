@@ -43,6 +43,10 @@ public class UrlCache {
 							Date lastModified = dateFormatter.parse(parsedLine[1]);
 							if(cacheHashMap.containsKey(parsedLine[0]))
 							{
+								//If the object we have in cache got updated
+								//We will find another copy of it with the latest date
+								//The first one we grabbed is definetly old so anything that follows with the same key
+								//might be recent
 								Date savedModified = cacheHashMap.get(parsedLine[0]);
 								if(lastModified.getTime()>savedModified.getTime())
 								{
